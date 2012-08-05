@@ -19,10 +19,8 @@ in the project directory. The installation script "bootstrap" will create a "bui
 ### Usage
 
 - Create makefile.lisp in your project directory.
-- In your project directory, run
-```bash
-fasl-make .
-```
+- In your project directory, run ```fasl-make .```. You can also use ```fasl-make``` outside your project directory, as long as the path to the project directory is provided as argument to ```fasl-make```.
+
 
 ### Dependencies
 * fasl-make only works with sbcl. This also means it DEPENDS on sbcl.

@@ -1,0 +1,5 @@
+#! /bin/bash
+
+DIR=$( cd "$( dirname "$0" )" && pwd)
+sbcl --noinform --no-userinit --quit --eval "(load \"${DIR}/fasl-make.fasl\")" --eval '(fasl-make::main *posix-argv*)' $@
+     

@@ -1,0 +1,14 @@
+#! /bin/bash
+
+DIR=$( cd "$( dirname "$0" )" && pwd)
+
+# make clean equivalent
+mkdir -p build
+rm -rf build/*
+
+# Compile
+sbcl --noinform --no-userinit --quit --eval "(require 'sb-posix)" --eval "(compile-file \"${DIR}/lisp/fasl-make.lisp\" :output-file \"${DIR}/build/fasl-make.fasl\")"
+
+# Copy wrapper
+cp bash/fasl-make build
+chmod a+x build/fasl-make

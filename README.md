@@ -26,7 +26,12 @@ in the project directory of fasl-make. The installation script "bootstrap" will 
 makefile.lisp consists of statements. There are 3 kinds of statements.
 
 
-- ```lisp (object ...)```. This will add a target for the compilation.
+- ```(object keyword-value-pairs)```. This will add a target for the compilation. You can specify the keywoard-value-pairs summarized below:
+  <table>
+  <tr> <td> keyword </td> <td> value-type </td>
+       <td> description </td> <td> required </td> </tr>
+  <tr> <td> :srouce </td> <td> string </td> <td> source code file for this compilation rule </td> <td> yes </td> </tr> 
+  </table>
 
 
 

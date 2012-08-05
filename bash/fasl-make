@@ -1,5 +1,8 @@
 #! /bin/bash
 
+QLPATH=$(head ~/.fasl-make -n 1)
 DIR=$( cd "$( dirname "$0" )" && pwd)
-sbcl --noinform --no-userinit --quit --eval "(load \"${DIR}/fasl-make.fasl\")" --eval '(fasl-make::main *posix-argv*)' $@
+sbcl --noinform --no-userinit --quit \
+    --eval "(let ((quicklisp-init #P\"${QLPATH}\")) (load quicklisp-init))" \
+    --eval "(load \"${DIR}/fasl-make.fasl\")" --eval '(fasl-make::main *posix-argv*)' $@
      

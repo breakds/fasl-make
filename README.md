@@ -5,16 +5,27 @@ fasl based sbcl application builder.
 
 fasl-make is a tool written in common lisp that builds executables for your common lisp project.
 
-## Limitations
-
-* fasl-make only works with sbcl. This also means it DEPENDS on sbcl.
-
 ## Documantation
 
 ### Installation
 
 run 
 ```bash
+echo you_path_to_quicklisp_setup.lisp > ~/.fasl-make
 ./boostrap
 ```
-in the project directory. It will create a "build" directory and place the execulate "fasl-make" in it.
+in the project directory. The installation script "bootstrap" will create a "build" directory and place the execulate "fasl-make" in it.
+
+### Usage
+
+- Create makefile.lisp in your project directory.
+- In your project directory, run
+```bash
+fasl-make .
+```
+
+### Dependencies
+* fasl-make only works with sbcl. This also means it DEPENDS on sbcl.
+* fasl-make requires quicklisp.
+
+

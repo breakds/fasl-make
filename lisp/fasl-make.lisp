@@ -17,6 +17,11 @@
           (env (make-hash-table :test #'equal)))
       (if (probe-file make-file)
           (progn
+            ;; default environment values
+            (when (probe-file "~/.fasl-make")
+              (with-open-file (*standard-input* "~/.fasl-make"
+                                                :direction :input)
+                (setf (gethash "QUICKLISP-PATH" env) (read-line))))
             (setf (gethash "PROJECT-DIR" env) (format nil "~a/" (cadr argv)))
             (setf (gethash "BUILD-DIR" env) "build")
             (setf (gethash "TARGETS" env) nil)
@@ -25,7 +30,7 @@
                                               :if-does-not-exist nil)
               (loop for exp = (read nil nil 'eof)
                  until (eq exp 'eof)
-                 do (cond ((equal (to-string (car exp)) "TARGET") ;; declare compilation targets
+                 do (cond ((equal (to-string (car exp)) "OBJECT") ;; declare compilation targets
                            (let ((current (gethash "TARGETS" env)))
                              (setf (gethash "TARGETS" env) 
                                    (append current (list (rest exp))))))
@@ -40,22 +45,37 @@
               (ensure-directories-exist (merge-pathnames output-dir "fake"))
               ;; 2. iterate over the targets list
               (loop for target in (gethash "TARGETS" env)
-                 do 
-                   (format t "compiling ~a ...~%" (car target))
-                   ;; compile .fasl file
-                   (compile-file (merge-pathnames (gethash "PROJECT-DIR" env) (cadr target))
-                                 :output-file (merge-pathnames output-dir (format nil "~a.fasl" (car target))))
-                   ;; write bash wrapper
-                   (with-open-file (out (merge-pathnames output-dir (car target))
-                                        :direction :output
-                                        :if-exists :supersede)
-                     (format out "#!/bin/bash~%")
-                     (format out "DIR=$( cd \"$( dirname \"$0\" )\" && pwd )~%")
-                     (format out "sbcl --noinform --no-userinit --quit ")
-                     (format out "     --eval \"(load \\\"${DIR}/~a.fasl\\\")\" " (car target))
-                     (format out "     --eval '(~a::main *posix-argv*)' $@ ~%" (car target)))
-                   ;; add executable permission
-                   (sb-posix:chmod (merge-pathnames output-dir (car target)) 493))))
+                 do (let ((name (getf target :target)) ;; the target name
+                          (src (getf target :source)) ;; the source code file
+                          (ql-pkgs (getf target :quickload))) ;; packages/systems that loaded by quicklisp
+                      (format t "compiling ~a ...~%" name)
+                      ;; load ql packages/systems
+                      (when ql-pkgs
+                        (loop for pkg in ql-pkgs 
+                           do (ql:quickload pkg)))
+
+
+                      ;; compile .fasl file
+                      (compile-file (merge-pathnames (gethash "PROJECT-DIR" env) src)
+                                    :output-file (merge-pathnames output-dir (format nil "~a.fasl" name)))
+                      ;; write bash wrapper
+                      (with-open-file (out (merge-pathnames output-dir name)
+                                           :direction :output
+                                           :if-exists :supersede)
+                        (format out "#!/bin/bash~%")
+                        (format out "DIR=$( cd \"$( dirname \"$0\" )\" && pwd )~%")
+                        (format out "sbcl --noinform --no-userinit --quit ")
+                        ;; when :quickload is present, load quicklisp and required packages/systems in wrapper
+                        (when ql-pkgs
+                          (format out "   --eval '(let ((quicklisp-init #P\"~a\")) (load quicklisp-init))' " 
+                                  (gethash "QUICKLISP-PATH" env))
+                          (loop for pkg in ql-pkgs
+                             do (format out "   --eval \"(ql:quickload '~a)\" " pkg)))
+                        ;; load main fasl file
+                        (format out "     --eval \"(load \\\"${DIR}/~a.fasl\\\")\" " name)
+                        (format out "     --eval '(~a::main *posix-argv*)' $@ ~%" name))
+                      ;; add executable permission
+                      (sb-posix:chmod (merge-pathnames output-dir name) 493)))))
           (format t "[fail] ~a does not exist.~%" make-file)))))
 
       

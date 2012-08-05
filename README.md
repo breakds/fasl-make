@@ -3,7 +3,7 @@ fasl-make
 
 fasl based sbcl application builder.
 
-fasl-make is a tool written in common lisp that builds executables for your common lisp project. Under the hood, it compiles your lisp program into fasl file, and creates a bash wrapper to run it.
+fasl-make is a tool written in common lisp that builds executables for your common lisp project. Under the hood, it compiles your lisp program into fasl file, and creates a bash wrapper to run it. This approach avoids the existence of a large and tedious dumped core.
 
 ## Documantation
 

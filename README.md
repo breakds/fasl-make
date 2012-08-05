@@ -27,12 +27,28 @@ makefile.lisp consists of statements. There are 3 kinds of statements.
 
 
 - ```(object keyword-value-pairs)```. This will add a target for the compilation. You can specify the keywoard-value-pairs summarized below:
-  <table>
-  <tr> <td> keyword </td> <td> value-type </td>
-       <td> description </td> <td> required </td> </tr>
-  <tr> <td> :srouce </td> <td> string </td> <td> source code file for this compilation rule </td> <td> yes </td> </tr> 
+  <table align="center">
+  <tr><td align="center"> <b>keyword</b> </td> <td align="center"> <b> value-type </b> </td>
+       <td align="center"> <b> description </b> </td> <td align="center"> <b> required </b> </td> </tr>
+  <tr> <td>:srouce </td> <td> string </td> <td> source code file for this compilation rule </td> <td> yes </td> </tr> 
+  <tr> <td>:target </td> <td> string </td> <td> target binary for this compilation rule </td> <td> yes </td> </tr> 
+  <tr> <td>:quickload </td> <td> list </td> <td> a list of packages that will be loaded by quicklisp </td> <td> no </td> </tr> 
   </table>
 
+- ```(print variable-name)```. This will show the value of a variable in the process of compilation.
+- ```(variable-name value)```. This will assign a new value for a variable.
+
+### Special Variables
+- project-dir: the project directory of the project to be compiled.
+- build-dir: the holder directory for built binaries. (default: project-dir/build)
+
+### Sample makefile.lisp
+
+```lisp
+(build-dir "release")
+(object :source "something.lisp" :target "something" :quickload (cl-fad))
+(print project-dir)
+```
 
 
 ### Dependencies
